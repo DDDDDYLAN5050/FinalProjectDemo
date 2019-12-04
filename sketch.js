@@ -14,6 +14,14 @@ function setup() {
   ball.ySpd = ball.xSpd / abs(ball.xSpd) * sqrt(1 - ball.xSpd * ball.xSpd);
 }
 
+
+//1 在draw()读取ball的状态,读取score，读取其他brick状态;
+//2 每当bounce()触发之后，上传ball的状态;
+//3 在服务器端运算ball.move();
+//4 在server判断gameOver()的触发;
+
+
+
 function draw() {
   myCanvas.position(-0.1*(winMouseX-width), -0.1*(winMouseY-height));
   background(0, 0, 0, 25);
@@ -33,11 +41,13 @@ function draw() {
 }
 
 function gameOver() {
+  //reset ball postion
   if (abs(ball.xPos - width / 2) > width / 2 + 100 || abs(ball.yPos - height / 2) > height / 2 + 100) {
     ball.xPos = random(0.25, 0.75) * width;
     ball.yPos = random(0.25, 0.75) * height;
-    score = constrain(score - 10, 0, 999999999);
-    background(0);
+    // score = constrain(score - 10, 0, 999999999);
+    score=0;
+    background(255);
     textAlign(CENTER);
     textSize(300);
     fill('red');
@@ -47,7 +57,13 @@ function gameOver() {
 }
 
 function bounce() {
+
+
+  //collision detect
   var hit = collideRectCircle(brick.bX - brick.bW / 2, brick.bY - brick.bH / 2, brick.bW, brick.bH, ball.xPos, ball.yPos, ball.r);
+
+
+
   if (hit == true) {
     console.log("hit");
     score++;
@@ -56,9 +72,12 @@ function bounce() {
     }
     console.log(int(100 * ball.xSpd));
     console.log(int(100 * ball.ySpd));
+
+    //random the ball orientation
     if (cd < 1) {
       if (brick.bX == 0 || brick.bX == width) {
         ball.xSpd *= -1;
+        // ball.ySpd = random(-1, 1);
         ball.ySpd = random(-1, 1);
         cd = 10;
         // ball.xSpd = ball.ySpd / abs(ball.ySpd) * sqrt(1 - ball.ySpd * ball.ySpd);
@@ -82,8 +101,6 @@ function bounce() {
     //   console.log("x=" + ball.xSpd);
     //   console.log("y=" + ball.ySpd);
     // }
-
-
   }
 }
 
