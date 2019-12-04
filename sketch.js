@@ -1,0 +1,158 @@
+var brick;
+var ball;
+var score = 0;
+var highScore = 0;
+var cd = 0;
+var myCanvas;
+
+function setup() {
+  myCanvas = createCanvas(windowWidth*0.9, windowHeight*0.9);
+  noStroke();
+  ball = new balls();
+  brick = new bricks();
+  ball.xSpd = random(-1, 1);
+  ball.ySpd = ball.xSpd / abs(ball.xSpd) * sqrt(1 - ball.xSpd * ball.xSpd);
+}
+
+function draw() {
+  myCanvas.position(-0.1*(winMouseX-width), -0.1*(winMouseY-height));
+  background(0, 0, 0, 25);
+  textAlign(CENTER);
+  textSize(300);
+  fill(75);
+  text(score, width / 2, height / 2);
+  textSize(100);
+  text("HIGHSCORE: " + highScore, width / 2, height * 2 / 3);
+  fill(255);
+  cd = constrain(cd - 1, 0, 10);
+  bounce();
+  gameOver();
+  ball.move();
+  brick.brickMove();
+  brick.brickRect();
+}
+
+function gameOver() {
+  if (abs(ball.xPos - width / 2) > width / 2 + 100 || abs(ball.yPos - height / 2) > height / 2 + 100) {
+    ball.xPos = random(0.25, 0.75) * width;
+    ball.yPos = random(0.25, 0.75) * height;
+    score = constrain(score - 10, 0, 999999999);
+    background(0);
+    textAlign(CENTER);
+    textSize(300);
+    fill('red');
+    text("MISS!", width / 2, height / 2);
+    fill(255);
+  }
+}
+
+function bounce() {
+  var hit = collideRectCircle(brick.bX - brick.bW / 2, brick.bY - brick.bH / 2, brick.bW, brick.bH, ball.xPos, ball.yPos, ball.r);
+  if (hit == true) {
+    console.log("hit");
+    score++;
+    if (score > highScore) {
+      highScore = score;
+    }
+    console.log(int(100 * ball.xSpd));
+    console.log(int(100 * ball.ySpd));
+    if (cd < 1) {
+      if (brick.bX == 0 || brick.bX == width) {
+        ball.xSpd *= -1;
+        ball.ySpd = random(-1, 1);
+        cd = 10;
+        // ball.xSpd = ball.ySpd / abs(ball.ySpd) * sqrt(1 - ball.ySpd * ball.ySpd);
+      } else if (brick.bY == 0 || brick.bY == height) {
+        ball.ySpd *= -1;
+        ball.xSpd = random(-1, 1);
+        cd = 10;
+        // ball.ySpd = ball.xSpd / abs(ball.xSpd) * sqrt(1 - ball.xSpd * ball.xSpd);
+      }
+    }
+
+
+    // if (brick.bX == 0 || brick.bX == width) {
+    //   ball.ySpd = (ball.yPos - brick.bY - brick.bH / 2) / brick.bH * 2;
+    //   ball.xSpd = ball.ySpd / abs(ball.ySpd) * sqrt(1 - ball.ySpd * ball.ySpd);
+    //   console.log("x=" + ball.xSpd);
+    //   console.log("y=" + ball.ySpd);
+    // } else if (brick.bY == 0 || brick.bY == height) {
+    //   ball.xSpd = (ball.xPos - brick.bX - brick.bW / 2) / brick.bW * 2;
+    //   ball.ySpd = ball.xSpd / abs(ball.xSpd) * sqrt(1 - ball.xSpd * ball.xSpd);
+    //   console.log("x=" + ball.xSpd);
+    //   console.log("y=" + ball.ySpd);
+    // }
+
+
+  }
+}
+
+function balls() {
+  //ball parameters
+  this.r = 30;
+  this.xSpd;
+  this.ySpd;
+  this.xPos = width / 2;
+  this.yPos = height / 2;
+
+  this.move = function () {
+    this.xPos += this.xSpd * 10;
+    this.yPos += this.ySpd * 10;
+    // console.log(this.xPos);
+    // console.log(this.yPos);
+    ellipse(this.xPos, this.yPos, this.r);
+  }
+
+}
+
+function bricks() {
+  //brick parameters
+  this.bX;
+  this.bY;
+  this.bW;
+  this.bH;
+  var k = height / width;
+
+
+  this.brickMove = function () {
+    var m = k * mouseX - mouseY;
+    var n = height - k * mouseX - mouseY;
+    var a = mouseX - width / 2;
+    var b = mouseY - height / 2;
+    //mouseXY -> brick position
+    if (m * n > 0) {
+      this.bW = 200;
+      this.bH = 50;
+      if (b > 0) {
+        this.bY = height;
+        this.bX = height / 2 * a / b + width / 2;
+      } else {
+        this.bY = 0;
+        this.bX = -height / 2 * a / b + width / 2;
+      }
+    } else if (m * n < 0) {
+      this.bW = 50;
+      this.bH = 200;
+      if (a > 0) {
+        this.bY = width / 2 * b / a + height / 2;
+        this.bX = width;
+      } else {
+        this.bY = -width / 2 * b / a + height / 2;
+        this.bX = 0;
+      }
+    } else {
+      this.bX = -500;
+      this.bY = -500;
+    }
+
+    // console.log(this.bX);
+    // console.log(this.bY);
+  }
+
+  this.brickRect = function () {
+    //create brick
+    rectMode(CENTER);
+    rect(this.bX, this.bY, this.bW, this.bH);
+    // image();
+  }
+}
