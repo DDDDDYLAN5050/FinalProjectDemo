@@ -6,12 +6,18 @@ var cd = 0;
 var myCanvas;
 
 function setup() {
-  myCanvas = createCanvas(windowWidth*0.9, windowHeight*0.9);
+  launchIntoFullscreen(document.documentElement); // the whole page
+
+  // myCanvas = createCanvas(windowWidth*0.9, windowHeight*0.9);
+  myCanvas = createCanvas(1000, 1000);
   noStroke();
   ball = new balls();
   brick = new bricks();
   ball.xSpd = random(-1, 1);
   ball.ySpd = ball.xSpd / abs(ball.xSpd) * sqrt(1 - ball.xSpd * ball.xSpd);
+
+
+
 }
 
 
@@ -20,10 +26,24 @@ function setup() {
 //3 在服务器端运算ball.move();
 //4 在server判断gameOver()的触发;
 
+function launchIntoFullscreen(element) {
+  if (element.requestFullscreen) {
+    element.requestFullscreen();
+  } else if (element.mozRequestFullScreen) {
+    element.mozRequestFullScreen();
+  } else if (element.webkitRequestFullscreen) {
+    element.webkitRequestFullscreen();
+  } else if (element.msRequestFullscreen) {
+    element.msRequestFullscreen();
+  }
+}
+
+
+
 
 
 function draw() {
-  myCanvas.position(-0.1*(winMouseX-width), -0.1*(winMouseY-height));
+  // myCanvas.position(-0.1*(winMouseX-width), -0.1*(winMouseY-height));
   background(0, 0, 0, 25);
   textAlign(CENTER);
   textSize(300);
@@ -46,7 +66,7 @@ function gameOver() {
     ball.xPos = random(0.25, 0.75) * width;
     ball.yPos = random(0.25, 0.75) * height;
     // score = constrain(score - 10, 0, 999999999);
-    score=0;
+    score = 0;
     background(255);
     textAlign(CENTER);
     textSize(300);
