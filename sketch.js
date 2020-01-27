@@ -59,7 +59,9 @@ function launchIntoFullscreen(element) {
 }
 
 
-
+function touchMoved() {
+  return false;//CANVAS NO MOVING
+}
 
 
 function draw() {
