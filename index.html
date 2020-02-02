@@ -20,18 +20,70 @@
       margin: auto;
       left: 50%;
       top: 50%;
-          transform: translate(-50%,-50%);
-          position:absolute;
+      transform: translate(-50%, -50%);
+      position: absolute;
     }
 
+    #menu {
+      margin: auto;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      position: absolute;
+      text-align: center;
+    }
+
+    .white {
+      color: #ffffff;
+    }
   </style>
   <script src="p5.min.js"></script>
   <script src="p5.sound.min.js"></script>
   <script src="p5.collide2d.js"></script>
-  <script src="sketch.js"></script>
+  <!-- <script src="sketch.js"></script> -->
 </head>
 
 <body>
+  <script>
+    function toggleFullscreen(elem) {
+      elem = elem || document.documentElement;
+      if (!document.fullscreenElement && !document.mozFullScreenElement &&
+        !document.webkitFullscreenElement && !document.msFullscreenElement) {
+        if (elem.requestFullscreen) {
+          elem.requestFullscreen();
+        } else if (elem.msRequestFullscreen) {
+          elem.msRequestFullscreen();
+        } else if (elem.mozRequestFullScreen) {
+          elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) {
+          elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.msExitFullscreen) {
+          document.msExitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+          document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+      }
+    }
+    document.getElementById('btnFullscreen').addEventListener('click', function() {
+      toggleFullscreen();
+    });
+  </script>
+
+  <div id='menu'>
+    <p class='white' id="btnFullscreen" onclick="toggleFullscreen(document.documentElement);">Fullscreen Mode</p>
+    <a href="theGame.html">
+      <p class='white'>Start Game</p>
+      <!-- <img src="04.png" class="block_attachment ml-md-3" alt=""> -->
+      <span></span>
+    </a>
+  </div>
+
 </body>
 
 </html>
