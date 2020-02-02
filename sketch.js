@@ -1,14 +1,19 @@
 var brick;
+var brickScaleX = 1,
+  brickScaleY = 1;
 var ball;
 var score = 0;
 var highScore = 0;
 var cd = 0;
 var myCanvas;
-
+var music, hitSound;
+var motionBlur = false;
 let bg1, bl1, bk1a, bk1b;
 
 
 function preload() {
+  music = loadSound('assets/Theme music cutted.mp3');
+  hitSound = loadSound('assets/hit.wav');
   bg1 = loadImage('assets/background1.png');
   bl1 = loadImage('assets/ball1.png');
   bk1a = loadImage('assets/brick1a.png');
@@ -17,9 +22,15 @@ function preload() {
 
 
 function setup() {
-  launchIntoFullscreen(document.documentElement); // the whole page
-  frameRate(60);
+  music.setVolume(0.1);
+  music.loop();
+  select('#btnMB').style('color', '#e94e1a');
 
+  // toggleFullscreen(document.documentElement); // the whole page
+  frameRate(60);
+  // document.getElementById('btnFullscreen').addEventListener('click', function() {
+  //   toggleFullscreen();
+  // });
 
   // myCanvas = createCanvas(windowWidth*0.9, windowHeight*0.9);
   myCanvas = createCanvas(1000, 1000);
@@ -29,59 +40,60 @@ function setup() {
   ball.xSpd = random(-1, 1);
   ball.ySpd = ball.xSpd / abs(ball.xSpd) * sqrt(1 - ball.xSpd * ball.xSpd);
 
-  createButton('Fullscreen').id('fullscreen');
-  select('#fullscreen').mousePressed(fsc);
-  select('#fullscreen').style('background-color', color(25));
-  select('#fullscreen').style('color', color(255));
-  select('#fullscreen').position(windowWidth / 2 + 525, windowHeight / 2 - 470);
+  select('#btnFullscreen').mousePressed(toggleFullscreen);
+  select('#btnMute').mouseClicked(MuteMusic);
+  select('#btnMB').mouseClicked(ToggleMotionBlur);
+
+  if (windowHeight < windowWidth) {
+    myCanvas.style('height', '90%');
+    myCanvas.style('width', 'auto');
+    // select("#setting").style('transform','translate(-'++'px,-50%)');
+  } else {
+    myCanvas.style('height', 'auto');
+    myCanvas.style('width', '90%');
+  }
 }
 
-function fsc() {
-  launchIntoFullscreen(document.documentElement);
-  select('#fullscreen').hide();
-}
 
 //1 在draw()读取ball的状态,读取score，读取其他brick状态;
 //2 每当bounce()触发之后，上传ball的状态;
 //3 在服务器端运算ball.move();
 //4 在server判断gameOver()的触发;
 
-function launchIntoFullscreen(element) {
-  if (element.requestFullscreen) {
-    element.requestFullscreen();
-  } else if (element.mozRequestFullScreen) {
-    element.mozRequestFullScreen();
-  } else if (element.webkitRequestFullscreen) {
-    element.webkitRequestFullscreen();
-  } else if (element.msRequestFullscreen) {
-    element.msRequestFullscreen();
-  }
-}
-
-
-function touchMoved() {
-  return false;//CANVAS NO MOVING
-}
-
 
 function draw() {
   // myCanvas.position(-0.1*(winMouseX-width), -0.1*(winMouseY-height));
   // background(0, 0, 0, 25);
-  push();
-  tint(255, 255, 255, 100);
-  image(bg1, 500, 500, 1000, 1000);
-  pop();
+  //Motion Blur
+  if (motionBlur == true) {
+    push();
+    tint(255, 255, 255, 150);
+    image(bg1, 500, 500, 1000, 1000);
+    pop();
+  } else {
+    image(bg1, 500, 500, 1000, 1000);
+  }
+
+
   textAlign(CENTER);
   textSize(100);
   push();
   colorMode(HSB);
-  fill(frameCount%360,225,180);
+  fill(frameCount % 360, 225, 180);
   text(score, width / 2, 400);
   textSize(50);
-  text("HIGHSCORE: " + highScore, width / 2, 625 );
+  text("HIGHSCORE: " + highScore, width / 2, 625);
   pop();
   fill(255);
+
+
   cd = constrain(cd - 1, 0, 10);
+  brickScaleX = constrain(brickScaleX + 0.05, 0.6, 1);
+  brickScaleY = constrain(brickScaleY + 0.05, 0.6, 1);
+  // console.log(cd);
+  console.log(brickScaleX + " " + brickScaleY);
+
+
   bounce();
   gameOver();
   ball.move();
@@ -113,8 +125,10 @@ function bounce() {
 
 
 
-  if (hit == true) {
+  if (hit == true && cd == 0) {
     // console.log("hit");
+    hitSound.setVolume(1);
+    hitSound.play();
     score++;
     if (score > highScore) {
       highScore = score;
@@ -123,20 +137,21 @@ function bounce() {
     // console.log(int(100 * ball.ySpd));
 
     //random the ball orientation
-    if (cd < 1) {
-      if (brick.bX == 0 || brick.bX == width) {
-        ball.xSpd *= -1;
-        // ball.ySpd = random(-1, 1);
-        ball.ySpd = random(-1, 1);
-        cd = 10;
-        // ball.xSpd = ball.ySpd / abs(ball.ySpd) * sqrt(1 - ball.ySpd * ball.ySpd);
-      } else if (brick.bY == 0 || brick.bY == height) {
-        ball.ySpd *= -1;
-        ball.xSpd = random(-1, 1);
-        cd = 10;
-        // ball.ySpd = ball.xSpd / abs(ball.xSpd) * sqrt(1 - ball.xSpd * ball.xSpd);
-      }
+    if (brick.bX == 0 || brick.bX == width) {
+      ball.xSpd *= -1;
+      // ball.ySpd = random(-1, 1);
+      ball.ySpd = random(-1, 1);
+      cd = 10;
+      brickScaleX = 0.6;
+      // ball.xSpd = ball.ySpd / abs(ball.ySpd) * sqrt(1 - ball.ySpd * ball.ySpd);
+    } else if (brick.bY == 0 || brick.bY == height) {
+      ball.ySpd *= -1;
+      ball.xSpd = random(-1, 1);
+      cd = 10;
+      brickScaleY = 0.6;
+      // ball.ySpd = ball.xSpd / abs(ball.xSpd) * sqrt(1 - ball.xSpd * ball.xSpd);
     }
+
 
 
     // if (brick.bX == 0 || brick.bX == width) {
@@ -227,11 +242,83 @@ function bricks() {
     rect(this.bX, this.bY, this.bW, this.bH);
     imageMode(CENTER);
     // rotate(brickOrien);
+    push();
+    translate(this.bX, this.bY);
+    scale(brickScaleX, brickScaleY);
+    translate(-this.bX, -this.bY);
     if (brickOrien == 0) {
       image(bk1a, this.bX, this.bY, this.bW, this.bH);
     } else {
       image(bk1b, this.bX, this.bY, this.bW, this.bH);
     }
+    pop();
     // image();
   }
+}
+
+
+
+function MuteMusic() {
+  if (music.isLooping()) {
+    music.pause();
+    select('#btnMute').style('color', '#e94e1a');
+    select('#btnMute').html('☒ Music');
+  } else {
+    music.loop();
+    select('#btnMute').style('color', 'white');
+    select('#btnMute').html('☑ Music');
+  }
+}
+
+function ToggleMotionBlur() {
+  if (motionBlur == true) {
+    motionBlur = false;
+    select('#btnMB').style('color', '#e94e1a');
+    select('#btnMB').html('☒ Motion Blur');
+  } else {
+    motionBlur = true;
+    select('#btnMB').style('color', 'white');
+    select('#btnMB').html('☑ Motion Blur');
+  }
+}
+
+function toggleFullscreen(elem) {
+  elem = elem || document.documentElement;
+  if (!document.fullscreenElement && !document.mozFullScreenElement &&
+    !document.webkitFullscreenElement && !document.msFullscreenElement) {
+
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen();
+      select('#btnFullscreen').html('☑ Fullscreen');
+    } else if (elem.msRequestFullscreen) {
+      elem.msRequestFullscreen();
+      select('#btnFullscreen').html('☑ Fullscreen');
+    } else if (elem.mozRequestFullScreen) {
+      elem.mozRequestFullScreen();
+      select('#btnFullscreen').html('☑ Fullscreen');
+    } else if (elem.webkitRequestFullscreen) {
+      elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+      select('#btnFullscreen').html('☑ Fullscreen');
+    }
+  } else {
+
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+      select('#btnFullscreen').html('☒ Fullscreen');
+    } else if (document.msExitFullscreen) {
+      document.msExitFullscreen();
+      select('#btnFullscreen').html('☒ Fullscreen');
+    } else if (document.mozCancelFullScreen) {
+      document.mozCancelFullScreen();
+      select('#btnFullscreen').html('☒ Fullscreen');
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+      select('#btnFullscreen').html('☒ Fullscreen');
+    }
+  }
+}
+
+
+function touchMoved() {
+  return false; //CANVAS NO MOVING
 }

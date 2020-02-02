@@ -15,15 +15,38 @@
     }
 
     canvas {
-      width: 1000px;
-      height: 1000px;
+      /* width: 1000px;
+      height: 1000px; */
       margin: auto;
       left: 50%;
       top: 50%;
-          transform: translate(-50%,-50%);
-          position:absolute;
+      transform: translate(-50%, -50%);
+      position: absolute;
     }
 
+    .white {
+      color: #ffffff;
+      font-size: 1vw;
+    }
+
+    h2 {
+      color: #e94e1a;
+      font-size: 2vw;
+    }
+
+    #RulesAndSetting {
+      width: 16vw;
+      text-align: left;
+      left: 5%;
+      top: 5%;
+      transform: translate(0%, 0%);
+      position: absolute;
+    }
+
+    #fullscreen {
+      background-color: #252525;
+      color: #ffffff;
+    }
   </style>
   <script src="p5.min.js"></script>
   <script src="p5.sound.min.js"></script>
@@ -32,6 +55,15 @@
 </head>
 
 <body>
+  <div id='RulesAndSetting'>
+    <h2>GAME RULES</h2>
+    <p class='white'>Welcome to “Game name*”! The goal of  the game is to reach the highest score and to finish all the levels. Using the trackpad or your mouse, you can move along the perimeter. Stop the ball from touching the perimeter!! You are playing with other gamers from all over the world, collaborate with them! Each time a new user logs in your brick will get smaller. The more the ball bounces the highest the score. When you reach a touchpoint, you’ll change level and if you fall you’ll start again from the last touchpoint.</p></br>
+    <h2>SETTINGS</h2>
+    <p id='btnFullscreen' class='white'>☒ Fullscreen</p>
+    <p id='btnMute' class='white'>☑ Music</p>
+    <p id='btnMB' class='white'>☒ Motion Blur</p>
+  </div>
+
 </body>
 
 </html>

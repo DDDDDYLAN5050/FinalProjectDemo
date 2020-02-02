@@ -24,14 +24,74 @@
       position: absolute;
     }
 
-    #menu {
+    h1 {
       margin: auto;
       left: 50%;
-      top: 50%;
+      top: 30%;
       transform: translate(-50%, -50%);
       position: absolute;
       text-align: center;
+      font-size: 15vh;
+      /* color: #e94e1a; */
+      background: linear-gradient(45deg, #ffc107, deeppink, #9c27b0);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: hueRotate 3s infinite alternate;
     }
+
+    @keyframes hueRotate {
+      0 {
+        filter: hue-rotate(0);
+      }
+
+      100% {
+        filter: hue-rotate(360deg);
+      }
+    }
+
+    #intro {
+      margin: auto;
+      left: 50%;
+      top: 55%;
+      transform: translate(-50%, -50%);
+      position: absolute;
+      text-align: center;
+      font-size: 2vh;
+      color: #ffffff;
+    }
+
+    #menu {
+      margin: auto;
+      left: 50%;
+      top: 70%;
+      transform: translate(-50%, -50%);
+      position: absolute;
+      text-align: center;
+      font-size: 1.5vh;
+      background: linear-gradient(225deg, #ffc107, deeppink, #9c27b0);
+      -webkit-background-clip: text;
+      /* -webkit-text-fill-color: transparent; */
+      animation: hueRotate 3s infinite alternate;
+    }
+
+    #menu:hover {
+      /* font-size: 2vh; */
+      /* animation: btnStart 1s infinite alternate; */
+      animation-name: btnStart;
+      animation-duration: 0.5s;
+      animation-iteration-count: infinite;
+      cursor: pointer;
+    }
+
+    @keyframes btnStart {
+      0 {
+        font-size: 1.5vh;
+      }
+      100% {
+        font-size: 2vh;
+      }
+    }
+
 
     .white {
       color: #ffffff;
@@ -45,42 +105,16 @@
 
 <body>
   <script>
-    function toggleFullscreen(elem) {
-      elem = elem || document.documentElement;
-      if (!document.fullscreenElement && !document.mozFullScreenElement &&
-        !document.webkitFullscreenElement && !document.msFullscreenElement) {
-        if (elem.requestFullscreen) {
-          elem.requestFullscreen();
-        } else if (elem.msRequestFullscreen) {
-          elem.msRequestFullscreen();
-        } else if (elem.mozRequestFullScreen) {
-          elem.mozRequestFullScreen();
-        } else if (elem.webkitRequestFullscreen) {
-          elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-        }
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        } else if (document.msExitFullscreen) {
-          document.msExitFullscreen();
-        } else if (document.mozCancelFullScreen) {
-          document.mozCancelFullScreen();
-        } else if (document.webkitExitFullscreen) {
-          document.webkitExitFullscreen();
-        }
-      }
-    }
-    document.getElementById('btnFullscreen').addEventListener('click', function() {
-      toggleFullscreen();
-    });
   </script>
-
+  <h1>GAMENAME*</h1>
+  <p id='intro' class='white'>Welcome to “Game name*”!</br> The goal of the game is to reach the highest score and to finish all the levels. Using the trackpad or your mouse, you can move along the perimeter. Stop the ball from touching the
+    perimeter!!
+    You are playing with other gamers from all over the world, collaborate with them! Each time a new user logs in your brick will get smaller. The more the ball bounces the highest the score. When you reach a touchpoint, you’ll change level and if
+    you fall you’ll start again from the last touchpoint.</p>
   <div id='menu'>
-    <p class='white' id="btnFullscreen" onclick="toggleFullscreen(document.documentElement);">Fullscreen Mode</p>
+    <!-- <p class='white' id="btnFullscreen" onclick="toggleFullscreen(document.documentElement);">Fullscreen Mode</p> -->
     <a href="theGame.html">
-      <p class='white'>Start Game</p>
-      <!-- <img src="04.png" class="block_attachment ml-md-3" alt=""> -->
-      <span></span>
+      <h2 class='white'><span style="font-size:3vh">👉</span> START GAME</h2>
     </a>
   </div>
 
