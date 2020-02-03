@@ -1,33 +1,49 @@
 var brick;
 var brickScaleX = 1,
-  brickScaleY = 1;
+  brickScaleY = 1; //板接球形变
 var ball;
+var lvl = "#lvl1",
+  currentLevel = 1; //当前等级
 var score = 0,
-  prevscore = 0;
-var highScore = 0;
-var cd = 0;
-var myCanvas;
-var music, hitSound, fallSound;
-var motionBlur = false,
-  soundEffects = true;
-let bg1, bl1, bk1a, bk1b;
+  prevscore = 0; //分数，失败跌落分
+var highScore = 0; //最高分
+var cd = 0; //冷却时间
 
+var myCanvas; //画布
+var music, hitSound, fallSound; //音频
+var motionBlur = false,
+  soundEffects = true; //设置音量开关，运动模糊开关
+
+let bg1, bl1, bk1a, bk1b;
+let bgArr = [],
+  blArr = [],
+  bkhArr = [],
+  bkvArr = []; //关卡美术资源数组
 
 function preload() {
   music = loadSound('assets/Theme music cutted.mp3');
   hitSound = loadSound('assets/hit.wav');
   fallSound = loadSound('assets/fall.wav');
+
+
   bg1 = loadImage('assets/background1.png');
   bl1 = loadImage('assets/ball1.png');
   bk1a = loadImage('assets/brick1a.png');
   bk1b = loadImage('assets/brick1b.png');
+
+for(i=1;i<7;i++){
+  var bg = loadImage('assets/background'+i+'.png');
+}
+
 }
 
 
 function setup() {
+  //初始设置背景音乐
   music.setVolume(0.1);
   music.loop();
   select('#btnMB').style('color', '#e94e1a');
+
 
   // toggleFullscreen(document.documentElement); // the whole page
   frameRate(60);
@@ -35,7 +51,7 @@ function setup() {
   //   toggleFullscreen();
   // });
 
-  // myCanvas = createCanvas(windowWidth*0.9, windowHeight*0.9);
+  // 创建画布，球，板
   myCanvas = createCanvas(1000, 1000);
   noStroke();
   ball = new balls();
@@ -43,11 +59,14 @@ function setup() {
   ball.xSpd = random(-1, 1);
   ball.ySpd = ball.xSpd / abs(ball.xSpd) * sqrt(1 - ball.xSpd * ball.xSpd);
 
+  //设置选项style
   select('#btnFullscreen').mousePressed(toggleFullscreen);
   select('#btnMute').mouseClicked(MuteMusic);
   select('#btnMB').mouseClicked(ToggleMotionBlur);
   select('#btnSoundEffects').mouseClicked(ToggleSoundEffects);
 
+
+  //画布大小自适应
   if (windowHeight < windowWidth) {
     myCanvas.style('height', '90%');
     myCanvas.style('width', 'auto');
@@ -66,43 +85,42 @@ function setup() {
 
 
 function draw() {
-  // myCanvas.position(-0.1*(winMouseX-width), -0.1*(winMouseY-height));
-  // background(0, 0, 0, 25);
+  //计算当前等级
+  currentLevel = lvl.match(/\d+(.\d+)?/g) * 1;
+  console.log(currentLevel);
+
+
   //Motion Blur
   if (motionBlur == true) {
     push();
+    translate(width / 2, height / 2);
+    scale((sin(millis() * PI / 150) + 1) * 0.003 + 1);
+    translate(-width / 2, -height / 2);
     tint(255, 255, 255, 150);
     image(bg1, 500, 500, 1000, 1000);
     pop();
   } else {
+    push();
+    translate(width / 2, height / 2);
+    scale((sin(millis() * PI / 150) + 1) * 0.003 + 1);
+    translate(-width / 2, -height / 2);
     image(bg1, 500, 500, 1000, 1000);
+    pop();
   }
 
+  //启动分数条
   touchPt();
-
-  // textAlign(CENTER);
-  // textFont('Press Start 2P');
-  // textSize(100);
-  // push();
-  // colorMode(HSB);
-  // fill(frameCount % 360, 225, 180);
-  // text(score, width / 2, 400);
-  // textSize(50);
-  // text("HIGHSCORE: " + highScore, width / 2, 625);
-  // pop();
-  // fill(255);
-
   select('#currentScore').html(score);
   select('#Highscore').html(highScore);
 
-
+  //板冷却时间+接球形变
   cd = constrain(cd - 1, 0, 10);
   brickScaleX = constrain(brickScaleX + 0.05, 0.6, 1);
   brickScaleY = constrain(brickScaleY + 0.05, 0.6, 1);
   // console.log(cd);
   // console.log(brickScaleX + " " + brickScaleY);
 
-
+//开启bounce+球跌落+绘制球和板
   bounce();
   gameOver();
   ball.move();
@@ -111,6 +129,7 @@ function draw() {
 }
 
 function ResetTouchPt() {
+  //分数条重置
   select('#lvl1').html('▇');
   select('#lvl2').html('▇');
   select('#lvl3').html('▇');
@@ -120,8 +139,11 @@ function ResetTouchPt() {
 }
 
 function touchPt() {
+  //设置各等级分数
   var touchpoint = [0, 5, 10, 15, 20, 25, 30];
-  var lvl = "#lvl1";
+
+  //分数条指针位置
+  lvl = "#lvl1";
   var i;
   for (i = 0; i < 7; i++) {
     if (score < touchpoint[i]) {
@@ -144,24 +166,25 @@ function touchPt() {
 }
 
 function gameOver() {
-  //reset ball postion
+  //重置球位置
   if (abs(ball.xPos - width / 2) > width / 2 + 100 || abs(ball.yPos - height / 2) > height / 2 + 100) {
     if (soundEffects == true) {
       fallSound.setVolume(0.1);
       fallSound.play();
-    }
+    }//播放跌落音效
     ball.xPos = random(0.25, 0.75) * width;
     ball.yPos = random(0.25, 0.75) * height;
-    score = prevscore;
+    score = prevscore;//降分数
   }
 }
 
 
 
 function bounce() {
-  //collision detect
+  //检测碰撞
   var hit = collideRectCircle(brick.bX - brick.bW / 2, brick.bY - brick.bH / 2, brick.bW, brick.bH, ball.xPos, ball.yPos, ball.r);
 
+  //碰撞行为
   if (hit == true && cd == 0) {
     // console.log("hit");
     if (soundEffects == true) {
@@ -172,8 +195,6 @@ function bounce() {
     if (score > highScore) {
       highScore = score;
     }
-    // console.log(int(100 * ball.xSpd));
-    // console.log(int(100 * ball.ySpd));
 
     //random the ball orientation
     if (brick.bX == 0 || brick.bX == width) {
@@ -191,36 +212,26 @@ function bounce() {
       brickScaleY = 0.6;
       // ball.ySpd = ball.xSpd / abs(ball.xSpd) * sqrt(1 - ball.xSpd * ball.xSpd);
     }
-
-
-
-    // if (brick.bX == 0 || brick.bX == width) {
-    //   ball.ySpd = (ball.yPos - brick.bY - brick.bH / 2) / brick.bH * 2;
-    //   ball.xSpd = ball.ySpd / abs(ball.ySpd) * sqrt(1 - ball.ySpd * ball.ySpd);
-    //   console.log("x=" + ball.xSpd);
-    //   console.log("y=" + ball.ySpd);
-    // } else if (brick.bY == 0 || brick.bY == height) {
-    //   ball.xSpd = (ball.xPos - brick.bX - brick.bW / 2) / brick.bW * 2;
-    //   ball.ySpd = ball.xSpd / abs(ball.xSpd) * sqrt(1 - ball.xSpd * ball.xSpd);
-    //   console.log("x=" + ball.xSpd);
-    //   console.log("y=" + ball.ySpd);
-    // }
   }
 }
 
 function balls() {
-  //ball parameters
+  //球 参数
   this.r = 30;
   this.xSpd;
   this.ySpd;
   this.xPos = width / 2;
   this.yPos = height / 2;
 
+
+  //球运动
   this.move = function () {
-    this.xPos += this.xSpd * 10;
-    this.yPos += this.ySpd * 10;
+    this.xPos += this.xSpd * deltaTime*1;
+    this.yPos += this.ySpd * deltaTime*1;
     // console.log(this.xPos);
     // console.log(this.yPos);
+
+    //绘制球样式
     noFill();
     ellipse(this.xPos, this.yPos, this.r);
     imageMode(CENTER);
@@ -230,7 +241,7 @@ function balls() {
 }
 
 function bricks() {
-  //brick parameters
+  //板 参数
   this.bX = 0;
   this.bY = 0;
   this.bW = 200;
@@ -238,6 +249,8 @@ function bricks() {
   var k = height / width;
   var brickOrien;
 
+
+  //板 运动
   this.brickMove = function () {
     var m = k * mouseX - mouseY;
     var n = height - k * mouseX - mouseY;
@@ -275,6 +288,7 @@ function bricks() {
     // console.log(this.bY);
   }
 
+  //绘制板
   this.brickRect = function () {
     //create brick
     rectMode(CENTER);
@@ -298,7 +312,7 @@ function bricks() {
 
 
 
-function MuteMusic() {
+function MuteMusic() {//静音
   if (music.isLooping()) {
     music.pause();
     select('#btnMute').style('color', '#e94e1a');
@@ -310,7 +324,7 @@ function MuteMusic() {
   }
 }
 
-function ToggleSoundEffects() {
+function ToggleSoundEffects() {//关闭音效
   if (soundEffects == true) {
     soundEffects = false;
     select('#btnSoundEffects').style('color', '#e94e1a');
@@ -322,7 +336,7 @@ function ToggleSoundEffects() {
   }
 }
 
-function ToggleMotionBlur() {
+function ToggleMotionBlur() {//开启运动模糊
   if (motionBlur == true) {
     motionBlur = false;
     select('#btnMB').style('color', '#e94e1a');
@@ -334,7 +348,7 @@ function ToggleMotionBlur() {
   }
 }
 
-function toggleFullscreen(elem) {
+function toggleFullscreen(elem) {//开启全屏
   elem = elem || document.documentElement;
   if (!document.fullscreenElement && !document.mozFullScreenElement &&
     !document.webkitFullscreenElement && !document.msFullscreenElement) {
